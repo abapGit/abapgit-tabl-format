@@ -6,9 +6,20 @@ CLASS zcl_tabl_format DEFINITION
   PUBLIC SECTION.
   PROTECTED SECTION.
   PRIVATE SECTION.
+
+    METHODS serialize .
+    METHODS deserialize .
 ENDCLASS.
 
 
 
 CLASS ZCL_TABL_FORMAT IMPLEMENTATION.
+
+
+  METHOD deserialize.
+  ENDMETHOD.
+
+
+  METHOD serialize.
+  ENDMETHOD.
 ENDCLASS.
