@@ -4,7 +4,8 @@
   "private": true,
   "description": "wip, temporary testing",
   "scripts": {
-    "test": "abaplint"
+    "unit": "rm -rf output && abap_transpile abap_transpile.json && node output/index.mjs",
+    "test": "abaplint && npm run unit"
   },
   "repository": {
     "type": "git",
