@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/abapGit/abapgit-tabl-format#readme",
   "dependencies": {
+    "@abaplint/runtime": "^2.7.137",
+    "@abaplint/transpiler-cli": "^2.7.137",
     "@abaplint/cli": "^2.105.4"
   }
 }
