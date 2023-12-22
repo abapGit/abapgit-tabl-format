@@ -25,9 +25,15 @@ CLASS ltcl_test IMPLEMENTATION.
     CALL TRANSFORMATION id
       OPTIONS value_handling = 'accept_data_loss'
       SOURCE XML iv_xml
-      RESULT dd02v = ls_data-dd02v.
+      RESULT
+      dd02v = ls_data-dd02v
+      dd03p_table = ls_data-dd03p_table.
 
     lv_ddl = lo_format->serialize( ls_data ).
+
+    cl_abap_unit_assert=>assert_equals(
+      exp = iv_ddl
+      act = lv_ddl ).
 
   ENDMETHOD.
 
