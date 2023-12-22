@@ -98,11 +98,16 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       ENDIF.
 
       CLEAR lv_type.
-      WRITE ls_dd03p-leng TO lv_foo.
+      lv_foo = ls_dd03p-leng.
+      SHIFT lv_foo LEFT DELETING LEADING '0'.
+      IF lv_foo = ''.
+        lv_foo = '0'.
+      ENDIF.
       lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_foo })|.
 
       rv_ddl = rv_ddl && |  { lv_key }{ to_lower( ls_dd03p-fieldname ) } : { lv_type }{ lv_notnull };\n|.
     ENDLOOP.
+    rv_ddl = rv_ddl && |\n|.
 
     rv_ddl = rv_ddl && |\}\n|.
 
