@@ -4,12 +4,20 @@ CLASS zcl_tabl_format DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    TYPES: BEGIN OF ty_internal,
+             BEGIN OF dd02v,
+               contflag TYPE c LENGTH 1,
+             END OF dd02v,
+           END OF ty_internal.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
     METHODS serialize
       IMPORTING
-        is_data TYPE zif_abapgit_object_tabl=>ty_internal.
+        is_data TYPE ty_internal
+      RETURNING
+        VALUE(rv_ddl) TYPE string.
 
     METHODS deserialize .
 ENDCLASS.

@@ -3,11 +3,6 @@
     "files": "/src/**/*.*"
   },
   "dependencies": [
-    {
-      "url": "https://github.com/abapGit/abapGit",
-      "folder": "/deps1",
-      "files": "/src/**/{zif_abapgit_object_tabl,zif_abapgit_longtexts}.*"
-    }
   ],
   "syntax": {
     "version": "v702",

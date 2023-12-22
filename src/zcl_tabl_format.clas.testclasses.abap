@@ -8,9 +8,6 @@ CLASS ltcl_test DEFINITION FOR TESTING DURATION SHORT RISK LEVEL HARMLESS FINAL.
 
     METHODS test1 FOR TESTING RAISING cx_static_check.
     METHODS test2 FOR TESTING RAISING cx_static_check.
-    METHODS test3 FOR TESTING RAISING cx_static_check.
-    METHODS test4 FOR TESTING RAISING cx_static_check.
-    METHODS test5 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -20,7 +17,8 @@ CLASS ltcl_test IMPLEMENTATION.
   METHOD test.
 
     DATA lo_format TYPE REF TO zcl_tabl_format.
-    DATA ls_data   TYPE zif_abapgit_object_tabl=>ty_internal.
+    DATA ls_data   TYPE zcl_tabl_format=>ty_internal.
+    DATA lv_ddl    TYPE string.
 
     CREATE OBJECT lo_format.
 
@@ -28,6 +26,8 @@ CLASS ltcl_test IMPLEMENTATION.
       OPTIONS value_handling = 'accept_data_loss'
       SOURCE XML iv_xml
       RESULT dd02v = ls_data-dd02v.
+
+    lv_ddl = lo_format->serialize( ls_data ).
 
   ENDMETHOD.
 
@@ -106,7 +106,8 @@ CLASS ltcl_test IMPLEMENTATION.
       ` </asx:abap>` && |\n| &&
       `</abapGit>`.
 
-* todo
+    test( iv_xml = lv_xml
+          iv_ddl = lv_ddl ).
 
   ENDMETHOD.
 
@@ -424,33 +425,6 @@ CLASS ltcl_test IMPLEMENTATION.
       `  </asx:values>` && |\n| &&
       ` </asx:abap>` && |\n| &&
       `</abapGit>`.
-
-* todo
-
-  ENDMETHOD.
-
-  METHOD test3.
-
-    DATA lv_ddl TYPE string.
-    DATA lv_xml TYPE string.
-
-* todo
-
-  ENDMETHOD.
-
-  METHOD test4.
-
-    DATA lv_ddl TYPE string.
-    DATA lv_xml TYPE string.
-
-* todo
-
-  ENDMETHOD.
-
-  METHOD test5.
-
-    DATA lv_ddl TYPE string.
-    DATA lv_xml TYPE string.
 
 * todo
 
