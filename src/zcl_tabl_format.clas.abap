@@ -56,6 +56,12 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   METHOD serialize.
 
+    DATA ls_dd03p   LIKE LINE OF is_data-dd03p_table.
+    DATA lv_key     TYPE string.
+    DATA lv_type    TYPE string.
+    DATA lv_notnull TYPE string.
+    DATA lv_foo     TYPE string.
+
 * todo, escaping?
     rv_ddl = rv_ddl && |@EndUserText.label : '{ is_data-dd02v-ddtext }'\n|.
 
@@ -77,8 +83,27 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
 * todo, which field is this?
     rv_ddl = rv_ddl && |@AbapCatalog.dataMaintenance : #LIMITED\n|.
-* todo, fields
-    rv_ddl = rv_ddl && |define table zabapgit \{\n|.
+
+    rv_ddl = rv_ddl && |define table { to_lower( is_data-dd02v-tabname ) } \{\n|.
+
+    LOOP AT is_data-dd03p_table INTO ls_dd03p.
+      CLEAR lv_key.
+      IF ls_dd03p-keyflag = abap_true.
+        lv_key = |key |.
+      ENDIF.
+
+      CLEAR lv_notnull.
+      IF ls_dd03p-notnull = abap_true.
+        lv_notnull = | not null| .
+      ENDIF.
+
+      CLEAR lv_type.
+      WRITE ls_dd03p-leng TO lv_foo.
+      lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_foo })|.
+
+      rv_ddl = rv_ddl && |  { lv_key }{ to_lower( ls_dd03p-fieldname ) } : { lv_type }{ lv_notnull };\n|.
+    ENDLOOP.
+
     rv_ddl = rv_ddl && |\}\n|.
 
   ENDMETHOD.
