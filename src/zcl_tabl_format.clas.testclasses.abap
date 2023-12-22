@@ -1,6 +1,11 @@
 CLASS ltcl_test DEFINITION FOR TESTING DURATION SHORT RISK LEVEL HARMLESS FINAL.
 
   PRIVATE SECTION.
+    METHODS test
+      IMPORTING
+        iv_ddl TYPE string
+        iv_xml TYPE string.
+
     METHODS test1 FOR TESTING RAISING cx_static_check.
     METHODS test2 FOR TESTING RAISING cx_static_check.
     METHODS test3 FOR TESTING RAISING cx_static_check.
@@ -11,6 +16,20 @@ ENDCLASS.
 
 
 CLASS ltcl_test IMPLEMENTATION.
+
+  METHOD test.
+
+    DATA lo_format TYPE REF TO zcl_tabl_format.
+    DATA ls_data   TYPE zif_abapgit_object_tabl=>ty_internal.
+
+    CREATE OBJECT lo_format.
+
+    CALL TRANSFORMATION id
+      OPTIONS value_handling = 'accept_data_loss'
+      SOURCE XML iv_xml
+      RESULT dd02v = ls_data-dd02v.
+
+  ENDMETHOD.
 
   METHOD test1.
 
