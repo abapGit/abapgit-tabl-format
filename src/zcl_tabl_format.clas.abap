@@ -60,7 +60,9 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     DATA lv_key     TYPE string.
     DATA lv_type    TYPE string.
     DATA lv_notnull TYPE string.
+    DATA lv_pre     TYPE string.
     DATA lv_int     TYPE i.
+    DATA lv_colon   TYPE i.
 
 * todo, escaping?
     rv_ddl = rv_ddl && |@EndUserText.label : '{ is_data-dd02v-ddtext }'\n|.
@@ -87,6 +89,17 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     rv_ddl = rv_ddl && |define table { to_lower( is_data-dd02v-tabname ) } \{\n|.
 
     LOOP AT is_data-dd03p_table INTO ls_dd03p.
+      lv_int = 0.
+      IF ls_dd03p-keyflag = abap_true.
+        lv_int = 4.
+      ENDIF.
+      lv_int = lv_int + strlen( ls_dd03p-fieldname ).
+      IF lv_int > lv_colon.
+        lv_colon = lv_int.
+      ENDIF.
+    ENDLOOP.
+
+    LOOP AT is_data-dd03p_table INTO ls_dd03p.
       CLEAR lv_key.
       IF ls_dd03p-keyflag = abap_true.
         lv_key = |key |.
@@ -101,11 +114,15 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       lv_int = ls_dd03p-leng.
       lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_int })|.
 
-      rv_ddl = rv_ddl && |  { lv_key }{ to_lower( ls_dd03p-fieldname ) } : { lv_type }{ lv_notnull };\n|.
+      lv_pre = |{ lv_key }{ to_lower( ls_dd03p-fieldname ) }|.
+      IF strlen( lv_pre ) < lv_colon.
+        lv_pre = lv_pre && repeat( val = | | occ = lv_colon - strlen( lv_pre ) ).
+      ENDIF.
+      rv_ddl = rv_ddl && |  { lv_pre } : { lv_type }{ lv_notnull };\n|.
     ENDLOOP.
     rv_ddl = rv_ddl && |\n|.
 
-    rv_ddl = rv_ddl && |\}\n|.
+    rv_ddl = rv_ddl && |\}|.
 
   ENDMETHOD.
 ENDCLASS.
