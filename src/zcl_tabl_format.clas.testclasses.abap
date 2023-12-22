@@ -432,7 +432,8 @@ CLASS ltcl_test IMPLEMENTATION.
       ` </asx:abap>` && |\n| &&
       `</abapGit>`.
 
-* todo
+    test( iv_xml = lv_xml
+          iv_ddl = lv_ddl ).
 
   ENDMETHOD.
 

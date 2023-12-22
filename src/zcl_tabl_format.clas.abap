@@ -9,6 +9,7 @@ CLASS zcl_tabl_format DEFINITION
              keyflag   TYPE abap_bool,
              notnull   TYPE abap_bool,
              datatype  TYPE c LENGTH 30,
+             rollname  TYPE c LENGTH 30,
              leng      TYPE n LENGTH 6,
            END OF ty_dd03p.
 
@@ -17,6 +18,7 @@ CLASS zcl_tabl_format DEFINITION
                tabname  TYPE c LENGTH 30,
                contflag TYPE c LENGTH 1,
                exclass  TYPE c LENGTH 1,
+               mainflag TYPE c LENGTH 1,
                ddtext   TYPE string,
                tabclass TYPE string,
              END OF dd02v,
@@ -86,8 +88,11 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
     rv_ddl = rv_ddl && |@AbapCatalog.deliveryClass : #{ is_data-dd02v-contflag }\n|.
 
-* todo, which field is this?
-    rv_ddl = rv_ddl && |@AbapCatalog.dataMaintenance : #LIMITED\n|.
+    IF is_data-dd02v-mainflag = abap_true.
+      rv_ddl = rv_ddl && |@AbapCatalog.dataMaintenance : #ALLOWED\n|.
+    ELSE.
+      rv_ddl = rv_ddl && |@AbapCatalog.dataMaintenance : #LIMITED\n|.
+    ENDIF.
 
     rv_ddl = rv_ddl && |define table { to_lower( is_data-dd02v-tabname ) } \{\n|.
 
@@ -131,13 +136,17 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       lv_notnull = | not null| .
     ENDIF.
 
-    lv_int = is_dd03p-leng.
-    CASE is_dd03p-datatype.
-      WHEN 'STRG'.
-        rv_type = |abap.string(0)|.
-      WHEN OTHERS.
-        rv_type = |abap.{ to_lower( is_dd03p-datatype ) }({ lv_int }){ lv_notnull }|.
-    ENDCASE.
+    IF is_dd03p-rollname IS NOT INITIAL.
+      rv_type = |{ to_lower( is_dd03p-rollname ) }{ lv_notnull }|.
+    ELSE.
+      lv_int = is_dd03p-leng.
+      CASE is_dd03p-datatype.
+        WHEN 'STRG'.
+          rv_type = |abap.string(0)|.
+        WHEN OTHERS.
+          rv_type = |abap.{ to_lower( is_dd03p-datatype ) }({ lv_int }){ lv_notnull }|.
+      ENDCASE.
+    ENDIF.
 
   ENDMETHOD.
 
