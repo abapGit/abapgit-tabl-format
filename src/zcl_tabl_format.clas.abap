@@ -13,6 +13,15 @@ CLASS zcl_tabl_format DEFINITION
              leng      TYPE n LENGTH 6,
            END OF ty_dd03p.
 
+    TYPES: BEGIN OF ty_dd05m,
+             fieldname  TYPE c LENGTH 30,
+             fortable   TYPE c LENGTH 30,
+             forkey     TYPE c LENGTH 30,
+             checktable TYPE c LENGTH 30,
+             checkfield TYPE c LENGTH 30,
+             primpos    TYPE n LENGTH 4,
+           END OF ty_dd05m.
+
     TYPES: BEGIN OF ty_internal,
              BEGIN OF dd02v,
                tabname  TYPE c LENGTH 30,
@@ -23,6 +32,7 @@ CLASS zcl_tabl_format DEFINITION
                tabclass TYPE string,
              END OF dd02v,
              dd03p_table TYPE STANDARD TABLE OF ty_dd03p WITH DEFAULT KEY,
+             dd05m_table TYPE STANDARD TABLE OF ty_dd05m WITH DEFAULT KEY,
            END OF ty_internal.
 
   PROTECTED SECTION.
