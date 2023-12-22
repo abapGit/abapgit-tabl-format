@@ -60,7 +60,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     DATA lv_key     TYPE string.
     DATA lv_type    TYPE string.
     DATA lv_notnull TYPE string.
-    DATA lv_foo     TYPE string.
+    DATA lv_int     TYPE i.
 
 * todo, escaping?
     rv_ddl = rv_ddl && |@EndUserText.label : '{ is_data-dd02v-ddtext }'\n|.
@@ -98,12 +98,8 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       ENDIF.
 
       CLEAR lv_type.
-      lv_foo = ls_dd03p-leng.
-      SHIFT lv_foo LEFT DELETING LEADING '0'.
-      IF lv_foo = ''.
-        lv_foo = '0'.
-      ENDIF.
-      lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_foo })|.
+      lv_int = ls_dd03p-leng.
+      lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_int })|.
 
       rv_ddl = rv_ddl && |  { lv_key }{ to_lower( ls_dd03p-fieldname ) } : { lv_type }{ lv_notnull };\n|.
     ENDLOOP.
