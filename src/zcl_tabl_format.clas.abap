@@ -33,6 +33,10 @@ CLASS zcl_tabl_format DEFINITION
         VALUE(rv_ddl) TYPE string.
 
     METHODS deserialize .
+
+    METHODS serialize_type
+      IMPORTING is_dd03p TYPE ty_dd03p
+      RETURNING VALUE(rv_type) TYPE string.
 ENDCLASS.
 
 
@@ -59,7 +63,6 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     DATA ls_dd03p   LIKE LINE OF is_data-dd03p_table.
     DATA lv_key     TYPE string.
     DATA lv_type    TYPE string.
-    DATA lv_notnull TYPE string.
     DATA lv_pre     TYPE string.
     DATA lv_int     TYPE i.
     DATA lv_colon   TYPE i.
@@ -105,24 +108,37 @@ CLASS zcl_tabl_format IMPLEMENTATION.
         lv_key = |key |.
       ENDIF.
 
-      CLEAR lv_notnull.
-      IF ls_dd03p-notnull = abap_true.
-        lv_notnull = | not null| .
-      ENDIF.
-
-      CLEAR lv_type.
-      lv_int = ls_dd03p-leng.
-      lv_type = |abap.{ to_lower( ls_dd03p-datatype ) }({ lv_int })|.
+      lv_type = serialize_type( ls_dd03p ).
 
       lv_pre = |{ lv_key }{ to_lower( ls_dd03p-fieldname ) }|.
       IF strlen( lv_pre ) < lv_colon.
         lv_pre = lv_pre && repeat( val = | | occ = lv_colon - strlen( lv_pre ) ).
       ENDIF.
-      rv_ddl = rv_ddl && |  { lv_pre } : { lv_type }{ lv_notnull };\n|.
+      rv_ddl = rv_ddl && |  { lv_pre } : { lv_type };\n|.
     ENDLOOP.
     rv_ddl = rv_ddl && |\n|.
 
     rv_ddl = rv_ddl && |\}|.
 
   ENDMETHOD.
+
+  METHOD serialize_type.
+
+    DATA lv_notnull TYPE string.
+    DATA lv_int TYPE i.
+
+    IF is_dd03p-notnull = abap_true.
+      lv_notnull = | not null| .
+    ENDIF.
+
+    lv_int = is_dd03p-leng.
+    CASE is_dd03p-datatype.
+      WHEN 'STRG'.
+        rv_type = |abap.string(0)|.
+      WHEN OTHERS.
+        rv_type = |abap.{ to_lower( is_dd03p-datatype ) }({ lv_int }){ lv_notnull }|.
+    ENDCASE.
+
+  ENDMETHOD.
+
 ENDCLASS.
