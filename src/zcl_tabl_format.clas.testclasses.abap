@@ -18,6 +18,7 @@ CLASS ltcl_test IMPLEMENTATION.
 
     DATA lo_format TYPE REF TO zcl_tabl_format.
     DATA ls_data   TYPE zcl_tabl_format=>ty_internal.
+    DATA ls_deserialized TYPE zcl_tabl_format=>ty_internal.
     DATA lv_ddl    TYPE string.
 
     CREATE OBJECT lo_format.
@@ -36,6 +37,9 @@ CLASS ltcl_test IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals(
       exp = iv_ddl
       act = lv_ddl ).
+
+    ls_deserialized = lo_format->deserialize( lv_ddl ).
+* todo, check result
 
   ENDMETHOD.
 

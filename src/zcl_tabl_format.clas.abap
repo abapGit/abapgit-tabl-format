@@ -45,14 +45,20 @@ CLASS zcl_tabl_format DEFINITION
              dd08v_table TYPE STANDARD TABLE OF ty_dd08v WITH DEFAULT KEY,
            END OF ty_internal.
 
-  PROTECTED SECTION.
-  PRIVATE SECTION.
-
     METHODS serialize
       IMPORTING
         is_data TYPE ty_internal
       RETURNING
         VALUE(rv_ddl) TYPE string.
+
+    METHODS deserialize
+      IMPORTING
+        iv_ddl TYPE string
+      RETURNING
+        VALUE(rv_data) TYPE ty_internal.
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
     METHODS serialize_top
       IMPORTING
@@ -73,8 +79,6 @@ CLASS zcl_tabl_format DEFINITION
         is_data       TYPE ty_internal
       RETURNING
         VALUE(rv_ddl) TYPE string.
-
-    METHODS deserialize .
 
     METHODS escape_string
       IMPORTING
