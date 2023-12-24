@@ -22,6 +22,11 @@ CLASS zcl_tabl_format DEFINITION
              primpos    TYPE n LENGTH 4,
            END OF ty_dd05m.
 
+    TYPES: BEGIN OF ty_dd08v,
+             ddtext TYPE string,
+             frkart TYPE c LENGTH 10,
+           END OF ty_dd08v.
+
     TYPES: BEGIN OF ty_internal,
              BEGIN OF dd02v,
                tabname  TYPE c LENGTH 30,
@@ -33,12 +38,19 @@ CLASS zcl_tabl_format DEFINITION
              END OF dd02v,
              dd03p_table TYPE STANDARD TABLE OF ty_dd03p WITH DEFAULT KEY,
              dd05m_table TYPE STANDARD TABLE OF ty_dd05m WITH DEFAULT KEY,
+             dd08v_table TYPE STANDARD TABLE OF ty_dd08v WITH DEFAULT KEY,
            END OF ty_internal.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
 
     METHODS serialize
+      IMPORTING
+        is_data TYPE ty_internal
+      RETURNING
+        VALUE(rv_ddl) TYPE string.
+
+    METHODS serialize_top
       IMPORTING
         is_data TYPE ty_internal
       RETURNING
@@ -69,15 +81,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   ENDMETHOD.
 
-
-  METHOD serialize.
-
-    DATA ls_dd03p   LIKE LINE OF is_data-dd03p_table.
-    DATA lv_key     TYPE string.
-    DATA lv_type    TYPE string.
-    DATA lv_pre     TYPE string.
-    DATA lv_int     TYPE i.
-    DATA lv_colon   TYPE i.
+  METHOD serialize_top.
 
 * todo, escaping?
     rv_ddl = rv_ddl && |@EndUserText.label : '{ is_data-dd02v-ddtext }'\n|.
@@ -103,6 +107,20 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     ELSE.
       rv_ddl = rv_ddl && |@AbapCatalog.dataMaintenance : #LIMITED\n|.
     ENDIF.
+
+  ENDMETHOD.
+
+  METHOD serialize.
+
+    DATA ls_dd03p   LIKE LINE OF is_data-dd03p_table.
+    DATA lv_key     TYPE string.
+    DATA lv_type    TYPE string.
+    DATA lv_pre     TYPE string.
+    DATA lv_int     TYPE i.
+    DATA lv_colon   TYPE i.
+
+
+    rv_ddl = rv_ddl && serialize_top( is_data ).
 
     rv_ddl = rv_ddl && |define table { to_lower( is_data-dd02v-tabname ) } \{\n|.
 
