@@ -76,6 +76,12 @@ CLASS zcl_tabl_format DEFINITION
 
     METHODS deserialize .
 
+    METHODS escape_string
+      IMPORTING
+        iv_string        TYPE clike
+      RETURNING
+        VALUE(rv_string) TYPE string.
+
     METHODS serialize_type
       IMPORTING is_dd03p TYPE ty_dd03p
       RETURNING VALUE(rv_type) TYPE string.
@@ -85,6 +91,10 @@ ENDCLASS.
 
 CLASS zcl_tabl_format IMPLEMENTATION.
 
+  METHOD escape_string.
+* todo
+    rv_string = iv_string.
+  ENDMETHOD.
 
   METHOD deserialize.
 
@@ -101,8 +111,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   METHOD serialize_top.
 
-* todo, escaping?
-    rv_ddl = rv_ddl && |@EndUserText.label : '{ is_data-dd02v-ddtext }'\n|.
+    rv_ddl = rv_ddl && |@EndUserText.label : '{ escape_string( is_data-dd02v-ddtext ) }'\n|.
 
     CASE is_data-dd02v-exclass.
       WHEN '1'.
@@ -138,8 +147,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     ENDIF.
 
     IF ls_dd08v-ddtext IS NOT INITIAL.
-* todo, escaping?
-      rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.label : '{ ls_dd08v-ddtext }'\n|.
+      rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.label : '{ escape_string( ls_dd08v-ddtext ) }'\n|.
     ENDIF.
 
     rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.keyType : #{ ls_dd08v-frkart }\n|.
@@ -150,9 +158,9 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   METHOD serialize_field_foreign_key.
 
-    DATA ls_dd08v LIKE LINE OF is_data-dd08v_table.
-    DATA ls_dd05m LIKE LINE OF is_data-dd05m_table.
-    DATA lv_pre TYPE string.
+    DATA ls_dd08v       LIKE LINE OF is_data-dd08v_table.
+    DATA ls_dd05m       LIKE LINE OF is_data-dd05m_table.
+    DATA lv_pre         TYPE string.
     DATA lv_cardinality TYPE string.
 
     READ TABLE is_data-dd08v_table INTO ls_dd08v WITH KEY fieldname = iv_fieldname.
