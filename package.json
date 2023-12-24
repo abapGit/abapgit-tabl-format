@@ -1,0 +1,25 @@
+{
+  "name": "abapgit-tabl-format",
+  "version": "1.0.0",
+  "private": true,
+  "description": "wip, temporary testing",
+  "scripts": {
+    "unit": "rm -rf output && abap_transpile abap_transpile.json && node output/index.mjs",
+    "test": "abaplint && npm run unit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abapGit/abapgit-tabl-format.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/abapGit/abapgit-tabl-format/issues"
+  },
+  "homepage": "https://github.com/abapGit/abapgit-tabl-format#readme",
+  "dependencies": {
+    "@abaplint/runtime": "^2.7.137",
+    "@abaplint/transpiler-cli": "^2.7.137",
+    "@abaplint/cli": "^2.105.4"
+  }
+}
