@@ -23,8 +23,9 @@ CLASS zcl_tabl_format DEFINITION
            END OF ty_dd05m.
 
     TYPES: BEGIN OF ty_dd08v,
-             ddtext TYPE string,
-             frkart TYPE c LENGTH 10,
+             fieldname TYPE c LENGTH 30,
+             ddtext    TYPE string,
+             frkart    TYPE c LENGTH 10,
            END OF ty_dd08v.
 
     TYPES: BEGIN OF ty_internal,
@@ -53,6 +54,13 @@ CLASS zcl_tabl_format DEFINITION
     METHODS serialize_top
       IMPORTING
         is_data TYPE ty_internal
+      RETURNING
+        VALUE(rv_ddl) TYPE string.
+
+    METHODS serialize_field_annotations
+      IMPORTING
+        iv_fieldname  TYPE clike
+        is_data       TYPE ty_internal
       RETURNING
         VALUE(rv_ddl) TYPE string.
 
@@ -110,14 +118,29 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD serialize_field_annotations.
+
+    DATA ls_dd08v LIKE LINE OF is_data-dd08v_table.
+
+    READ TABLE is_data-dd08v_table INTO ls_dd08v WITH KEY fieldname = iv_fieldname.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
+
+    rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.keyType : #{ ls_dd08v-frkart }\n|.
+
+    rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.screenCheck : true\n|.
+
+  ENDMETHOD.
+
   METHOD serialize.
 
-    DATA ls_dd03p   LIKE LINE OF is_data-dd03p_table.
-    DATA lv_key     TYPE string.
-    DATA lv_type    TYPE string.
-    DATA lv_pre     TYPE string.
-    DATA lv_int     TYPE i.
-    DATA lv_colon   TYPE i.
+    DATA ls_dd03p LIKE LINE OF is_data-dd03p_table.
+    DATA lv_key   TYPE string.
+    DATA lv_type  TYPE string.
+    DATA lv_pre   TYPE string.
+    DATA lv_int   TYPE i.
+    DATA lv_colon TYPE i.
 
 
     rv_ddl = rv_ddl && serialize_top( is_data ).
@@ -140,6 +163,10 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       IF ls_dd03p-keyflag = abap_true.
         lv_key = |key |.
       ENDIF.
+
+      rv_ddl = rv_ddl && serialize_field_annotations(
+        iv_fieldname = ls_dd03p-fieldname
+        is_data      = is_data ).
 
       lv_type = serialize_type( ls_dd03p ).
 

@@ -27,7 +27,9 @@ CLASS ltcl_test IMPLEMENTATION.
       SOURCE XML iv_xml
       RESULT
       dd02v = ls_data-dd02v
-      dd03p_table = ls_data-dd03p_table.
+      dd03p_table = ls_data-dd03p_table
+      dd05m_table = ls_data-dd05m_table
+      dd08v_table = ls_data-dd08v_table.
 
     lv_ddl = lo_format->serialize( ls_data ).
 
