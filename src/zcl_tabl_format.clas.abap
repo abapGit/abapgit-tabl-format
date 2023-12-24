@@ -65,6 +65,12 @@ CLASS zcl_tabl_format DEFINITION
         cs_data TYPE ty_internal
         cv_ddl  TYPE string.
 
+    METHODS parse_field
+      IMPORTING
+        iv_field TYPE string
+      CHANGING
+        cs_data TYPE ty_internal.
+
     METHODS serialize_top
       IMPORTING
         is_data TYPE ty_internal
@@ -106,7 +112,14 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD parse_top_annotations.
+
+    DATA lv_annotation TYPE string.
+
+    WHILE cv_ddl CP '@*'.
+      SPLIT cv_ddl AT |\n| INTO lv_annotation cv_ddl.
 * todo
+    ENDWHILE.
+
   ENDMETHOD.
 
   METHOD deserialize.
@@ -119,13 +132,42 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 "     e_source = DATA(sdf) ).
 
     DATA lv_ddl TYPE string.
+    DATA lv_fields TYPE string.
+    DATA lv_start TYPE i.
+    DATA lv_length TYPE i.
+    DATA lv_end TYPE i.
+    DATA lt_fields TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
+    DATA lv_field TYPE string.
+
 
     lv_ddl = iv_ddl.
 
     parse_top_annotations( CHANGING
       cs_data = rs_data
       cv_ddl  = lv_ddl ).
+
+    FIND FIRST OCCURRENCE OF '{' IN lv_ddl MATCH OFFSET lv_start.
+    ASSERT lv_start > 0.
+    FIND FIRST OCCURRENCE OF '}' IN lv_ddl MATCH OFFSET lv_end.
+    ASSERT lv_end > 0.
+
+    lv_start = lv_start + 1.
+    lv_length = lv_end - lv_start - 1.
+    lv_fields = lv_ddl+lv_start(lv_length).
+    WRITE / lv_fields.
+    SPLIT lv_fields AT |;| INTO TABLE lt_fields.
+
+    LOOP AT lt_fields INTO lv_field.
+      parse_field( EXPORTING iv_field = lv_field CHANGING cs_data = rs_data ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD parse_field.
 * todo
+
+    WRITE /.
+    WRITE / iv_field.
 
   ENDMETHOD.
 
