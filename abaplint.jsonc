@@ -11,7 +11,7 @@
   ],
   "syntax": {
     "version": "v702",
-    "errorNamespace": "^(Z|Y|LCL_|TY_|LIF_)"
+    "errorNamespace": "."
   },
   "rules": {
     "begin_end_names": true,
