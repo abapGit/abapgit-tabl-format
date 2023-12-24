@@ -55,10 +55,15 @@ CLASS zcl_tabl_format DEFINITION
       IMPORTING
         iv_ddl TYPE string
       RETURNING
-        VALUE(rv_data) TYPE ty_internal.
+        VALUE(rs_data) TYPE ty_internal.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
+
+    METHODS parse_top_annotations
+      CHANGING
+        cs_data TYPE ty_internal
+        cv_ddl  TYPE string.
 
     METHODS serialize_top
       IMPORTING
@@ -100,6 +105,10 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     rv_string = iv_string.
   ENDMETHOD.
 
+  METHOD parse_top_annotations.
+* todo
+  ENDMETHOD.
+
   METHOD deserialize.
 
 * CL_DDL_PARSER, CL_SBD_STRUCTURE_OBJDATA serializer in local class?
@@ -109,6 +118,13 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 "   IMPORTING
 "     e_source = DATA(sdf) ).
 
+    DATA lv_ddl TYPE string.
+
+    lv_ddl = iv_ddl.
+
+    parse_top_annotations( CHANGING
+      cs_data = rs_data
+      cv_ddl  = lv_ddl ).
 * todo
 
   ENDMETHOD.
