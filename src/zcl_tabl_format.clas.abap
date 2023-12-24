@@ -23,9 +23,12 @@ CLASS zcl_tabl_format DEFINITION
            END OF ty_dd05m.
 
     TYPES: BEGIN OF ty_dd08v,
-             fieldname TYPE c LENGTH 30,
-             ddtext    TYPE string,
-             frkart    TYPE c LENGTH 10,
+             fieldname  TYPE c LENGTH 30,
+             checktable TYPE c LENGTH 30,
+             ddtext     TYPE string,
+             frkart     TYPE c LENGTH 10,
+             card       TYPE c LENGTH 1,
+             cardleft   TYPE c LENGTH 1,
            END OF ty_dd08v.
 
     TYPES: BEGIN OF ty_internal,
@@ -58,6 +61,13 @@ CLASS zcl_tabl_format DEFINITION
         VALUE(rv_ddl) TYPE string.
 
     METHODS serialize_field_annotations
+      IMPORTING
+        iv_fieldname  TYPE clike
+        is_data       TYPE ty_internal
+      RETURNING
+        VALUE(rv_ddl) TYPE string.
+
+    METHODS serialize_field_foreign_key
       IMPORTING
         iv_fieldname  TYPE clike
         is_data       TYPE ty_internal
@@ -127,9 +137,48 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+    IF ls_dd08v-ddtext IS NOT INITIAL.
+* todo, escaping?
+      rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.label : '{ ls_dd08v-ddtext }'\n|.
+    ENDIF.
+
     rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.keyType : #{ ls_dd08v-frkart }\n|.
 
     rv_ddl = rv_ddl && |  @AbapCatalog.foreignKey.screenCheck : true\n|.
+
+  ENDMETHOD.
+
+  METHOD serialize_field_foreign_key.
+
+    DATA ls_dd08v LIKE LINE OF is_data-dd08v_table.
+    DATA ls_dd05m LIKE LINE OF is_data-dd05m_table.
+    DATA lv_pre TYPE string.
+    DATA lv_cardinality TYPE string.
+
+    READ TABLE is_data-dd08v_table INTO ls_dd08v WITH KEY fieldname = iv_fieldname.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
+
+    IF ls_dd08v-cardleft = 'C' AND ls_dd08v-card = '1'.
+      lv_cardinality = |[1,0..1]|.
+    ELSEIF ls_dd08v-cardleft = '1' AND ls_dd08v-card = 'N'.
+      lv_cardinality = |[1..*,1]|.
+    ELSE.
+      ASSERT 1 = 'todo'.
+    ENDIF.
+
+    rv_ddl = rv_ddl && |\n    with foreign key { lv_cardinality } { to_lower( ls_dd08v-checktable) }|.
+
+* assumption: dd05m table is sorted by PRIMPOS ascending
+    LOOP AT is_data-dd05m_table INTO ls_dd05m WHERE fieldname = iv_fieldname.
+      IF lv_pre IS INITIAL.
+        lv_pre = |\n      where |.
+      ELSE.
+        lv_pre = |\n        and |.
+      ENDIF.
+      rv_ddl = rv_ddl && |{ lv_pre }{ to_lower( ls_dd05m-checkfield ) } = { to_lower( ls_dd05m-fortable ) }.{ to_lower( ls_dd05m-forkey ) }|.
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -174,7 +223,11 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       IF strlen( lv_pre ) < lv_colon.
         lv_pre = lv_pre && repeat( val = | | occ = lv_colon - strlen( lv_pre ) ).
       ENDIF.
-      rv_ddl = rv_ddl && |  { lv_pre } : { lv_type };\n|.
+      rv_ddl = rv_ddl && |  { lv_pre } : { lv_type }|.
+      rv_ddl = rv_ddl && serialize_field_foreign_key(
+        iv_fieldname = ls_dd03p-fieldname
+        is_data      = is_data ).
+      rv_ddl = rv_ddl && |;\n|.
     ENDLOOP.
     rv_ddl = rv_ddl && |\n|.
 
