@@ -13,6 +13,7 @@
     "version": "v702",
     "errorNamespace": "."
   },
+
   "rules": {
     "begin_end_names": true,
     "check_ddic": true,
