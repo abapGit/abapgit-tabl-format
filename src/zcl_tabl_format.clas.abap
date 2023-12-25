@@ -147,9 +147,9 @@ CLASS zcl_tabl_format IMPLEMENTATION.
         cs_dd03p-intlen = 8.
         cs_dd03p-inttype = 'g'.
         cs_dd03p-datatype = 'STRG'.
+      ELSE.
+        ASSERT 1 = 'todo'.
       ENDIF.
-* todo
-*      cs_dd03p-datatype = iv_token+5.
     ELSE.
       cs_dd03p-rollname = to_upper( lv_token ).
     ENDIF.
