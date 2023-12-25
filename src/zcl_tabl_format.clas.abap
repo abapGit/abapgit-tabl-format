@@ -128,6 +128,8 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   METHOD deserialize.
 
+* https://help.sap.com/doc/abapdocu_cp_index_htm/CLOUD/en-US/abenddicddl_define_table.htm
+
 * CL_DDL_PARSER, CL_SBD_STRUCTURE_OBJDATA serializer in local class?
 " NEW cl_sbd_structure_persist( )->get_source(
 "   EXPORTING
@@ -181,15 +183,49 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD parse_field.
-* todo
 
-    DATA lv_field TYPE string.
+    CONSTANTS: BEGIN OF lc_mode,
+                 start TYPE i VALUE 0,
+                 colon TYPE i VALUE 1,
+                 type  TYPE i VALUE 2,
+               END OF lc_mode.
+
+    DATA lv_field  TYPE string.
+    DATA lv_mode   TYPE i.
+    DATA lt_tokens TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
+    DATA lv_token  TYPE string.
+
+    FIELD-SYMBOLS <ls_dd03p> LIKE LINE OF cs_data-dd03p_table.
+
 
     lv_field = iv_field.
     parse_field_annotations( CHANGING cv_ddl = lv_field ).
 
-    WRITE /.
-    WRITE / lv_field.
+    SPLIT lv_field AT space INTO TABLE lt_tokens.
+
+    APPEND INITIAL LINE TO cs_data-dd03p_table ASSIGNING <ls_dd03p>.
+
+    LOOP AT lt_tokens INTO lv_token WHERE table_line IS NOT INITIAL.
+      " WRITE / '@KERNEL console.dir(lv_token);'.
+      " WRITE / lv_mode.
+      CASE lv_mode.
+        WHEN lc_mode-start.
+* tood, is it possible ot have a key field named "key" ?
+          IF lv_token = 'key'.
+            <ls_dd03p>-keyflag = abap_true.
+          ELSE.
+            <ls_dd03p>-fieldname = to_upper( lv_token ).
+            lv_mode = lc_mode-colon.
+          ENDIF.
+        WHEN lc_mode-colon.
+          ASSERT lv_token = ':'.
+          lv_mode = lc_mode-type.
+        WHEN lc_mode-type.
+          RETURN. " todo
+        WHEN OTHERS.
+          ASSERT 1 = 'todo'.
+      ENDCASE.
+    ENDLOOP.
 
   ENDMETHOD.
 

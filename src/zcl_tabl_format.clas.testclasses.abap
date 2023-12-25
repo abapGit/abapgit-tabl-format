@@ -6,6 +6,12 @@ CLASS ltcl_test DEFINITION FOR TESTING DURATION SHORT RISK LEVEL HARMLESS FINAL.
         iv_ddl TYPE string
         iv_xml TYPE string.
 
+    METHODS dump_xml
+      IMPORTING
+        is_internal TYPE zcl_tabl_format=>ty_internal
+      RETURNING
+        VALUE(rv_xml) TYPE string.
+
     METHODS test1 FOR TESTING RAISING cx_static_check.
     METHODS test2 FOR TESTING RAISING cx_static_check.
 
@@ -16,10 +22,12 @@ CLASS ltcl_test IMPLEMENTATION.
 
   METHOD test.
 
-    DATA lo_format TYPE REF TO zcl_tabl_format.
-    DATA ls_data   TYPE zcl_tabl_format=>ty_internal.
+    DATA lo_format       TYPE REF TO zcl_tabl_format.
+    DATA ls_data         TYPE zcl_tabl_format=>ty_internal.
     DATA ls_deserialized TYPE zcl_tabl_format=>ty_internal.
-    DATA lv_ddl    TYPE string.
+    DATA lv_ddl          TYPE string.
+    DATA lv_xml          TYPE string.
+
 
     CREATE OBJECT lo_format.
 
@@ -27,7 +35,7 @@ CLASS ltcl_test IMPLEMENTATION.
       OPTIONS value_handling = 'accept_data_loss'
       SOURCE XML iv_xml
       RESULT
-      dd02v = ls_data-dd02v
+      dd02v       = ls_data-dd02v
       dd03p_table = ls_data-dd03p_table
       dd05m_table = ls_data-dd05m_table
       dd08v_table = ls_data-dd08v_table.
@@ -39,7 +47,24 @@ CLASS ltcl_test IMPLEMENTATION.
       act = lv_ddl ).
 
     ls_deserialized = lo_format->deserialize( lv_ddl ).
+
+    lv_xml = dump_xml( ls_deserialized ).
+    WRITE / lv_xml.
+
 * todo, check result
+
+  ENDMETHOD.
+
+  METHOD dump_xml.
+
+    CALL TRANSFORMATION id
+      OPTIONS initial_components = 'suppress'
+      SOURCE
+      dd02v       = is_internal-dd02v
+      dd03p_table = is_internal-dd03p_table
+      dd05m_table = is_internal-dd05m_table
+      dd08v_table = is_internal-dd08v_table
+      RESULT XML rv_xml.
 
   ENDMETHOD.
 
