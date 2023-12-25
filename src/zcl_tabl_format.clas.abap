@@ -11,6 +11,8 @@ CLASS zcl_tabl_format DEFINITION
              datatype  TYPE c LENGTH 30,
              rollname  TYPE c LENGTH 30,
              leng      TYPE n LENGTH 6,
+             intlen    TYPE n LENGTH 6,
+             inttype   TYPE c LENGTH 1,
            END OF ty_dd03p.
 
     TYPES: BEGIN OF ty_dd05m,
@@ -133,11 +135,23 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 
   METHOD parse_type.
 
-    IF iv_token CP 'abap.*'.
-      cs_dd03p-datatype = iv_token+6.
+    DATA lv_token TYPE string.
+
+    lv_token = iv_token.
+    IF lv_token CP 'abap.*'.
+      lv_token = lv_token+5.
+      IF lv_token(4) = 'char'.
+* todo, length
+        cs_dd03p-datatype = 'CHAR'.
+      ELSEIF lv_token(6) = 'string'.
+        cs_dd03p-intlen = 8.
+        cs_dd03p-inttype = 'g'.
+        cs_dd03p-datatype = 'STRG'.
+      ENDIF.
 * todo
+*      cs_dd03p-datatype = iv_token+5.
     ELSE.
-* todo
+      cs_dd03p-rollname = to_upper( lv_token ).
     ENDIF.
 
   ENDMETHOD.
