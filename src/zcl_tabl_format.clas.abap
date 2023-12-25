@@ -118,10 +118,34 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   METHOD parse_top_annotations.
 
     DATA lv_annotation TYPE string.
+    DATA lv_name TYPE string.
+    DATA lv_value TYPE string.
 
     WHILE cv_ddl CP '@*'.
       SPLIT cv_ddl AT |\n| INTO lv_annotation cv_ddl.
+      SPLIT lv_annotation AT ':' INTO lv_name lv_value.
+      CONDENSE lv_name.
+      CONDENSE lv_value.
+      ASSERT lv_name IS NOT INITIAL.
+      ASSERT lv_value IS NOT INITIAL.
+
+
+      CASE lv_name.
+        WHEN '@EndUserText.label'.
 * todo
+        WHEN '@AbapCatalog.enhancementCategory'.
+* todo
+        WHEN '@AbapCatalog.tableCategory'.
+* todo
+        WHEN '@AbapCatalog.deliveryClass'.
+* todo
+        WHEN '@AbapCatalog.dataMaintenance'.
+* todo
+        WHEN OTHERS.
+          WRITE: / 'todo:', lv_name, lv_value.
+          ASSERT 1 = 'todo'.
+      ENDCASE.
+
     ENDWHILE.
 
   ENDMETHOD.
