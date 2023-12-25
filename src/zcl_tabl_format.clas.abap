@@ -110,6 +110,10 @@ CLASS zcl_tabl_format DEFINITION
     METHODS serialize_type
       IMPORTING is_dd03p TYPE ty_dd03p
       RETURNING VALUE(rv_type) TYPE string.
+
+    METHODS parse_type
+      IMPORTING iv_token TYPE string
+      CHANGING cs_dd03p TYPE ty_dd03p.
 ENDCLASS.
 
 
@@ -125,6 +129,17 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   METHOD escape_string.
 * todo
     rv_string = |'{ iv_string }'|.
+  ENDMETHOD.
+
+  METHOD parse_type.
+
+    IF iv_token CP 'abap.*'.
+      cs_dd03p-datatype = iv_token+6.
+* todo
+    ELSE.
+* todo
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD parse_top_annotations.
@@ -242,6 +257,9 @@ CLASS zcl_tabl_format IMPLEMENTATION.
                  start TYPE i VALUE 0,
                  colon TYPE i VALUE 1,
                  type  TYPE i VALUE 2,
+                 aftertype TYPE i VALUE 2,
+                 null      TYPE i VALUE 2,
+                 afternull TYPE i VALUE 2,
                END OF lc_mode.
 
     DATA lv_field  TYPE string.
@@ -275,6 +293,20 @@ CLASS zcl_tabl_format IMPLEMENTATION.
           ASSERT lv_token = ':'.
           lv_mode = lc_mode-type.
         WHEN lc_mode-type.
+          parse_type(
+            EXPORTING iv_token = lv_token
+            CHANGING cs_dd03p = <ls_dd03p> ).
+          RETURN.
+        WHEN lc_mode-aftertype.
+          IF lv_token = 'not'.
+            <ls_dd03p>-notnull = abap_true.
+            lv_mode = lc_mode-null.
+          ENDIF.
+        WHEN lc_mode-null.
+          ASSERT lv_token = 'null'.
+          lv_mode = lc_mode-afternull.
+        WHEN lc_mode-afternull.
+          ASSERT lv_token = 'with'.
           RETURN. " todo
         WHEN OTHERS.
           ASSERT 1 = 'todo'.
