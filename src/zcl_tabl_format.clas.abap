@@ -69,7 +69,9 @@ CLASS zcl_tabl_format DEFINITION
 
     METHODS parse_field_annotations
       CHANGING
-        cv_ddl  TYPE string.
+        cv_ddl  TYPE string
+      RETURNING
+        VALUE(rs_dd08v) TYPE ty_dd08v.
 
     METHODS parse_field
       IMPORTING
@@ -159,8 +161,9 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   METHOD parse_top_annotations.
 
     DATA lv_annotation TYPE string.
-    DATA lv_name TYPE string.
-    DATA lv_value TYPE string.
+    DATA lv_name       TYPE string.
+    DATA lv_value      TYPE string.
+
 
     WHILE cv_ddl CP '@*'.
       SPLIT cv_ddl AT |\n| INTO lv_annotation cv_ddl.
@@ -220,13 +223,13 @@ CLASS zcl_tabl_format IMPLEMENTATION.
 "   IMPORTING
 "     e_source = DATA(sdf) ).
 
-    DATA lv_ddl TYPE string.
+    DATA lv_ddl    TYPE string.
     DATA lv_fields TYPE string.
-    DATA lv_start TYPE i.
+    DATA lv_start  TYPE i.
     DATA lv_length TYPE i.
-    DATA lv_end TYPE i.
+    DATA lv_end    TYPE i.
     DATA lt_fields TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
-    DATA lv_field TYPE string.
+    DATA lv_field  TYPE string.
 
 
     lv_ddl = iv_ddl.
@@ -254,13 +257,34 @@ CLASS zcl_tabl_format IMPLEMENTATION.
   METHOD parse_field_annotations.
 
     DATA lv_annotation TYPE string.
+    DATA lv_name       TYPE string.
+    DATA lv_value      TYPE string.
+
 
     REPLACE FIRST OCCURRENCE OF REGEX '^[\n ]*' IN cv_ddl WITH ||.
 
     WHILE cv_ddl CP '@*'.
       SPLIT cv_ddl AT |\n| INTO lv_annotation cv_ddl.
       CONDENSE cv_ddl.
-* todo
+
+      SPLIT lv_annotation AT ':' INTO lv_name lv_value.
+      CONDENSE lv_name.
+      CONDENSE lv_value.
+      ASSERT lv_name IS NOT INITIAL.
+      ASSERT lv_value IS NOT INITIAL.
+
+      CASE lv_name.
+        WHEN '@AbapCatalog.foreignKey.label'.
+          rs_dd08v-ddtext = unescape_string( lv_value ).
+        WHEN '@AbapCatalog.foreignKey.keyType'.
+          ASSERT lv_value(1) = '#'.
+          rs_dd08v-frkart = lv_value+1.
+        WHEN '@AbapCatalog.foreignKey.screenCheck'.
+          ASSERT lv_value = 'true'.
+        WHEN OTHERS.
+          WRITE: / 'todo:', lv_name, lv_value.
+          ASSERT 1 = 'todo'.
+      ENDCASE.
     ENDWHILE.
 
   ENDMETHOD.
@@ -280,12 +304,13 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     DATA lv_mode   TYPE i.
     DATA lt_tokens TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
     DATA lv_token  TYPE string.
+    DATA ls_dd08v  TYPE ty_dd08v.
 
     FIELD-SYMBOLS <ls_dd03p> LIKE LINE OF cs_data-dd03p_table.
 
 
     lv_field = iv_field.
-    parse_field_annotations( CHANGING cv_ddl = lv_field ).
+    ls_dd08v = parse_field_annotations( CHANGING cv_ddl = lv_field ).
 
     SPLIT lv_field AT space INTO TABLE lt_tokens.
 
