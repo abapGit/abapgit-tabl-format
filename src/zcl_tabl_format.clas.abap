@@ -210,7 +210,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       " WRITE / lv_mode.
       CASE lv_mode.
         WHEN lc_mode-start.
-* tood, is it possible ot have a key field named "key" ?
+* todo, is it possible to have a key field named "key" ?
           IF lv_token = 'key'.
             <ls_dd03p>-keyflag = abap_true.
           ELSE.
