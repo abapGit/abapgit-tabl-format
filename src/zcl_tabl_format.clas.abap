@@ -160,9 +160,17 @@ CLASS zcl_tabl_format IMPLEMENTATION.
               ASSERT 1 = 'todo'.
           ENDCASE.
         WHEN '@AbapCatalog.deliveryClass'.
-          cs_data-dd02v-contflag = lv_value.
+          ASSERT lv_value(1) = '#'.
+          cs_data-dd02v-contflag = lv_value+1.
         WHEN '@AbapCatalog.dataMaintenance'.
-* todo
+          CASE lv_value.
+            WHEN '#ALLOWED'.
+              cs_data-dd02v-mainflag = abap_true.
+            WHEN '#LIMITED'.
+              cs_data-dd02v-mainflag = abap_false.
+            WHEN OTHERS.
+              ASSERT 1 = 'todo'.
+          ENDCASE.
         WHEN OTHERS.
           WRITE: / 'todo:', lv_name, lv_value.
           ASSERT 1 = 'todo'.
