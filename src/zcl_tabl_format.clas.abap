@@ -65,6 +65,10 @@ CLASS zcl_tabl_format DEFINITION
         cs_data TYPE ty_internal
         cv_ddl  TYPE string.
 
+    METHODS parse_field_annotations
+      CHANGING
+        cv_ddl  TYPE string.
+
     METHODS parse_field
       IMPORTING
         iv_field TYPE string
@@ -154,20 +158,38 @@ CLASS zcl_tabl_format IMPLEMENTATION.
     lv_start = lv_start + 1.
     lv_length = lv_end - lv_start - 1.
     lv_fields = lv_ddl+lv_start(lv_length).
-    WRITE / lv_fields.
     SPLIT lv_fields AT |;| INTO TABLE lt_fields.
 
-    LOOP AT lt_fields INTO lv_field.
+    LOOP AT lt_fields INTO lv_field WHERE table_line IS NOT INITIAL.
       parse_field( EXPORTING iv_field = lv_field CHANGING cs_data = rs_data ).
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD parse_field_annotations.
+
+    DATA lv_annotation TYPE string.
+
+    REPLACE FIRST OCCURRENCE OF REGEX '^[\n ]*' IN cv_ddl WITH ||.
+
+    WHILE cv_ddl CP '@*'.
+      SPLIT cv_ddl AT |\n| INTO lv_annotation cv_ddl.
+      CONDENSE cv_ddl.
+* todo
+    ENDWHILE.
 
   ENDMETHOD.
 
   METHOD parse_field.
 * todo
 
+    DATA lv_field TYPE string.
+
+    lv_field = iv_field.
+    parse_field_annotations( CHANGING cv_ddl = lv_field ).
+
     WRITE /.
-    WRITE / iv_field.
+    WRITE / lv_field.
 
   ENDMETHOD.
 
