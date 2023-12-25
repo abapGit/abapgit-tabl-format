@@ -146,9 +146,19 @@ CLASS zcl_tabl_format IMPLEMENTATION.
         WHEN '@EndUserText.label'.
           cs_data-dd02v-ddtext = unescape_string( lv_value ).
         WHEN '@AbapCatalog.enhancementCategory'.
-* todo
+          CASE lv_value.
+            WHEN '#NOT_EXTENSIBLE'.
+              cs_data-dd02v-contflag = '1'.
+            WHEN OTHERS.
+              ASSERT 1 = 'todo'.
+          ENDCASE.
         WHEN '@AbapCatalog.tableCategory'.
-* todo
+          CASE lv_value.
+            WHEN '#TRANSPARENT'.
+              cs_data-dd02v-tabclass = 'TRANSP'.
+            WHEN OTHERS.
+              ASSERT 1 = 'todo'.
+          ENDCASE.
         WHEN '@AbapCatalog.deliveryClass'.
           cs_data-dd02v-contflag = lv_value.
         WHEN '@AbapCatalog.dataMaintenance'.
