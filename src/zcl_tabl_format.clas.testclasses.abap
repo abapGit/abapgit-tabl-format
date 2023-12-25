@@ -49,9 +49,9 @@ CLASS ltcl_test IMPLEMENTATION.
     ls_deserialized = lo_format->deserialize( lv_ddl ).
 
     lv_xml = dump_xml( ls_deserialized ).
-*    WRITE / lv_xml.
 
-* todo, check result
+* todo, check xml result
+*    WRITE / lv_xml.
 
   ENDMETHOD.
 
