@@ -421,7 +421,7 @@ CLASS zcl_tabl_format IMPLEMENTATION.
       ASSERT 1 = 'todo'.
     ENDIF.
 
-    rv_ddl = rv_ddl && |\n    with foreign key { lv_cardinality } { to_lower( ls_dd08v-checktable) }|.
+    rv_ddl = rv_ddl && |\n    with foreign key { lv_cardinality } { to_lower( ls_dd08v-checktable ) }|.
 
 * assumption: dd05m table is sorted by PRIMPOS ascending
     LOOP AT is_data-dd05m_table INTO ls_dd05m WHERE fieldname = iv_fieldname.
