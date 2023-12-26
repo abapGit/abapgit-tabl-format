@@ -13,10 +13,10 @@
     "version": "v702",
     "errorNamespace": "."
   },
-
   "rules": {
     "begin_end_names": true,
     "check_ddic": true,
+    "parser_missing_space": true,
     "check_include": true,
     "check_syntax": true,
     "global_class": true,
